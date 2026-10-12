@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sovereign AI Workbench — Prototype</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#14181f;--mut:#5b6472;--line:#dde1e8;--acc:#1f5eff;--accbg:#e8efff;--ok:#0f7a56;--okbg:#e2f5ed;--warn:#a85a00;--warnbg:#fff1dc;--bad:#c22626;--badbg:#fde8e8;--code:#f0f2f6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1218;--card:#181c24;--ink:#e8ebf1;--mut:#9aa3b2;--line:#2a303b;--acc:#6b9bff;--accbg:#1c2a4d;--ok:#4cc79a;--okbg:#12342a;--warn:#f0a850;--warnbg:#3a2a10;--bad:#ff7b7b;--badbg:#3d1a1a;--code:#11141b}}
+:root[data-theme="dark"]{--bg:#0f1218;--card:#181c24;--ink:#e8ebf1;--mut:#9aa3b2;--line:#2a303b;--acc:#6b9bff;--accbg:#1c2a4d;--ok:#4cc79a;--okbg:#12342a;--warn:#f0a850;--warnbg:#3a2a10;--bad:#ff7b7b;--badbg:#3d1a1a;--code:#11141b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+h1{font-size:17px;margin:0}
+h2{font-size:16px;margin:0 0 4px}
+h3{font-size:14px;margin:14px 0 6px}
+.sub{color:var(--mut);font-size:13px;margin:0 0 12px}
+.badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.who{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut)}
+select,input,textarea,button{font:inherit;color:var(--ink)}
+select,input[type=text],input[type=number],textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 9px;max-width:100%}
+textarea{width:100%;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:7px 12px;cursor:pointer}
+button.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+button.bad{background:var(--bad);color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+nav{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+nav button{background:var(--card);color:var(--ink);border:1px solid var(--line);white-space:nowrap}
+nav button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+main{max-width:980px;margin:0 auto;padding:16px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.scroll{overflow-x:auto}
+.chip{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--code);border:1px solid var(--line)}
+.ok{background:var(--okbg);color:var(--ok);border-color:var(--ok)}
+.warn{background:var(--warnbg);color:var(--warn);border-color:var(--warn)}
+.bad2{background:var(--badbg);color:var(--bad);border-color:var(--bad)}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+pre{background:var(--code);border-radius:8px;padding:10px;overflow-x:auto;margin:6px 0;font-size:12.5px;white-space:pre-wrap;word-break:break-word}
+.msg{padding:8px 10px;border-radius:10px;margin:6px 0;max-width:92%}
+.msg.u{background:var(--accbg);margin-left:auto}
+.msg.a{background:var(--code)}
+.why{font-size:12px;color:var(--mut);margin-top:4px}
+.note{font-size:12.5px;color:var(--mut)}
+.bar{height:8px;background:var(--code);border-radius:6px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--ok)}
+svg text{fill:var(--ink);font-size:11px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-right:6px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Sovereign On-Premise AI Workbench</h1>
+    <div class="sub" style="margin:0">Interactive prototype of Phases 0–7</div>
+  </div>
+  <div class="who">
+    <span class="badge">Prototype: runs in your browser, no server</span>
+    Signed in as
+    <select id="user" onchange="setUser(this.value)"></select>
+    <span id="userinfo" class="chip"></span>
+  </div>
+</header>
+<nav id="tabs"></nav>
+<main>
+
+<!-- P0 -->
+<section id="t0">
+  <h2>Phase 0 · Perimeter and people</h2>
+  <p class="sub">What to show: the sealed network proof, and that menus change with the role. Switch the user in the top bar.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Services</h3>
+      <table id="svc"></table>
+      <div class="row"><button onclick="egress()">Run egress test</button></div>
+      <pre id="egressOut">Not run yet.</pre>
+      <p class="note">Simulated here. In the real stack, <span class="mono">make egress-test</span> tries these from inside the sealed backend network.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">People (admin only)</h3>
+      <div id="people"></div>
+      <h3>Build progress</h3>
+      <div id="phases"></div>
+    </div>
+  </div>
+</section>
+
+<!-- P1 -->
+<section id="t1">
+  <h2>Phase 1 · Model gateway, capability cards, router, chat</h2>
+  <p class="sub">What to show: ask a plain question, then a coding one, then tick the image box. Switch the coder off and ask again. Every answer says why a model was chosen.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Capability cards</h3>
+      <div class="scroll"><table id="models"></table></div>
+      <p class="note">Sample cards. Cards are data, so adding a model needs no code change.</p>
+    </div>
+    <div class="card">
+      <div id="chatlog" style="min-height:160px;max-height:340px;overflow:auto"></div>
+      <div class="row">
+        <input type="text" id="chatin" style="flex:1;min-width:160px" placeholder="Ask something…" onkeydown="if(event.key==='Enter')chat()">
+        <label class="note"><input type="checkbox" id="img"> attach image</label>
+        <button onclick="chat()">Send</button>
+      </div>
+      <div class="row">
+        <button class="sec" onclick="ask('Explain why wall thinning matters')">Plain</button>
+        <button class="sec" onclick="ask('Write a python function to parse a log file')">Coding</button>
+        <button class="sec" onclick="ask('What is the deviation of 42 bar from a 40 bar limit?')">Calculation</button>
+        <button class="sec" onclick="ask('What do we know about vessel corrosion?')">Documents</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- P2 -->
+<section id="t2">
+  <h2>Phase 2 · Deterministic calculation engine</h2>
+  <p class="sub">What to show: 42 bar vs 40 bar gives 5% and the same trace ID every time. Then try degC, the unit C, and an empty field.</p>
+  <div class="card">
+    <div class="row"><b>Pressure against a limit</b> <span class="chip">pressure_vs_limit v1</span></div>
+    <div class="row">
+      <label>Actual <input type="number" id="ca" value="42" style="width:90px"></label>
+      <select id="cau"><option>bar</option><option>kPa</option><option>psi</option><option>degC</option><option>C</option><option>barg</option></select>
+      <label>Limit <input type="number" id="cl" value="40" style="width:90px"></label>
+      <select id="clu"><option>bar</option><option>kPa</option><option>psi</option><option>degC</option><option>C</option><option>barg</option></select>
+      <button onclick="runCalc()">Calculate</button>
+    </div>
+    <div id="calcOut"></div>
+    <p class="note">The limits (0–10% needs review, above 10% out of limit) are placeholders. Real values go in as a new tested version.</p>
+  </div>
+  <div class="card"><h3 style="margin-top:0">Run history</h3><div id="calcHist" class="note">No runs yet.</div></div>
+</section>
+
+<!-- P3 -->
+<section id="t3">
+  <h2>Phase 3 · Clearance, document retrieval, tamper-evident audit</h2>
+  <p class="sub">What to show: sign in as alice (Internal) and bob (Restricted). Search "corrosion". Then, as admin, verify the audit chain, tamper with it and verify again.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Document library</h3>
+      <div class="scroll"><table id="docs"></table></div>
+      <div class="row">
+        <input type="text" id="q" placeholder="Search documents…" style="flex:1" onkeydown="if(event.key==='Enter')search()">
+        <button onclick="search()">Search</button>
+      </div>
+      <div id="hits"></div>
+      <h3>Add a document</h3>
+      <div class="row"><input type="text" id="dt" placeholder="Title" style="flex:1"><select id="dc"></select></div>
+      <textarea id="dx" rows="2" placeholder="Text of the document"></textarea>
+      <div class="row"><button class="sec" onclick="addDoc()">Add document</button></div>
+      <div id="docMsg" class="note"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Audit trail (admin only)</h3>
+      <div id="auditPanel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- P4 -->
+<section id="t4">
+  <h2>Phase 4 · Scans, findings, approval notes</h2>
+  <p class="sub">What to show: as an engineer confirm findings, write a note and send it. Switch to rev and approve. Try approving your own note, or sending back with no reason.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Scanned report (made-up sample)</h3>
+      <pre id="scanTxt">INSPECTION REPORT (sample)
+Vessel V-101 shows wall thinning near the lower weld.
+Measured thickness 6.2 mm against minimum 6.0 mm.
+Pump P-101 seal leak observed. Bearing vibration high.</pre>
+      <span class="chip ok">Reader confidence 94%</span>
+      <h3>Proposed findings</h3>
+      <div id="finds"></div>
+      <div class="row">
+        <select id="nfmt"><option>Word</option><option>Excel</option><option>PowerPoint</option></select>
+        <button onclick="writeNote()">Write draft note</button>
+      </div>
+      <div id="noteMsg" class="note"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Approval notes</h3>
+      <div id="notes" class="note">No notes yet.</div>
+    </div>
+  </div>
+</section>
+
+<!-- P5 -->
+<section id="t5">
+  <h2>Phase 5 · Sandboxed code workspace and tool layer</h2>
+  <p class="sub">What to show: run the good script, then each attack button. The real sandbox is a separate container with no network, read-only files and hard limits. Here the outcomes are simulated.</p>
+  <div class="grid2">
+    <div class="card">
+      <div class="row">
+        <span class="chip ok">no network</span><span class="chip ok">unprivileged user</span><span class="chip ok">read-only system files</span>
+      </div>
+      <textarea id="code" rows="9">import csv
+rows = [7.1, 6.8, 6.2, 7.4]
+print("thickness readings loaded")
+print("mean thickness =", sum(rows)/len(rows))</textarea>
+      <div class="row">
+        <button onclick="runCode()">Run program</button>
+        <button class="sec" onclick="runTests()">Run tests</button>
+      </div>
+      <div class="row">
+        <button class="sec" onclick="preset('net')">Try network</button>
+        <button class="sec" onclick="preset('write')">Try writing /etc</button>
+        <button class="sec" onclick="preset('loop')">Infinite loop</button>
+        <button class="sec" onclick="preset('proc')">Spawn process</button>
+        <button class="sec" onclick="preset('good')">Reset</button>
+      </div>
+      <pre id="codeOut">Output appears here.</pre>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Tool layer (same tools over MCP)</h3>
+      <div class="scroll"><table id="tools"></table></div>
+      <p class="note">Sample catalogue. Each tool is defined once, with roles and audit.</p>
+    </div>
+  </div>
+</section>
+
+<!-- P6 -->
+<section id="t6">
+  <h2>Phase 6 · P&amp;ID drawing pipeline</h2>
+  <p class="sub">What to show: click symbols to review them (solid = confirmed, dashed = unchecked, dotted = doubtful). Switch to Blurry to see it doubt itself. Ask "what is connected to P-101".</p>
+  <div class="grid2">
+    <div class="card">
+      <div class="row">
+        <select id="pcond" onchange="mkPid(this.value)"><option value="clean">Clean practice sheet</option><option value="blurry">Blurry practice sheet</option></select>
+        <span id="pscore" class="chip"></span>
+      </div>
+      <div class="scroll"><svg id="pidsvg" viewBox="0 0 660 230" width="100%" style="min-width:520px"></svg></div>
+      <div class="note">Legend: solid = confirmed, dashed = unchecked, dotted + thick = doubtful, faded = rejected.</div>
+      <div id="symPanel"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Needs checking</h3>
+      <div id="pq"></div>
+      <h3>Ask the drawing</h3>
+      <div class="row"><input type="text" id="pask" style="flex:1" value="what is connected to P-101" onkeydown="if(event.key==='Enter')pidAsk()"><button onclick="pidAsk()">Ask</button></div>
+      <div id="pans" class="note"></div>
+      <div class="row"><button class="sec" onclick="pidExport()">Export JSON (confirmed only)</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- P7 -->
+<section id="t7">
+  <h2>Phase 7 · Secure model onboarding and hardening</h2>
+  <p class="sub">What to show: a model cannot reach the router until it passes checksum, benchmark and two different sign-offs, in order. Try the tampered file first.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Onboard candidate: <span class="mono">sample-ocr-7b</span></h3>
+      <div id="onb"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Hardening checklist</h3>
+      <div class="bar"><i id="hbar" style="width:0%"></i></div>
+      <div id="hard" style="margin-top:8px"></div>
+      <p class="note">Target list for the final pass. Tick items as you verify them on your own build.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CL=['Public','Internal','Confidential','Restricted'];
+const USERS={admin:{role:'admin',clr:3},bob:{role:'engineer',clr:3},alice:{role:'engineer',clr:1},rev:{role:'reviewer',clr:1},viewer:{role:'viewer',clr:0}};
+let cur='admin';
+const dl=(n,t)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download=n;a.click();};
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+const canEng=()=>['engineer','admin'].includes(USERS[cur].role);
+
+/* tabs */
+const TABS=['P0 Perimeter','P1 Models & chat','P2 Calculations','P3 Access & audit','P4 Findings & notes','P5 Sandbox & tools','P6 P&ID','P7 Onboarding'];
+$('#tabs').innerHTML=TABS.map((t,i)=>`<button data-i="${i}" onclick="tab(${i})">${t}</button>`).join('');
+function tab(i){document.querySelectorAll('section').forEach((s,k)=>s.classList.toggle('on',k===i));document.querySelectorAll('#tabs button').forEach((b,k)=>b.classList.toggle('on',k===i));window.scrollTo(0,0);}
+$('#user').innerHTML=Object.keys(USERS).map(u=>`<option>${u}</option>`).join('');
+function setUser(u){cur=u;const x=USERS[u];$('#userinfo').textContent=`${x.role} · ${CL[x.clr]}`;renderAll();}
+
+/* audit chain */
+let audit=[],q=Promise.resolve();const KEY='demo-audit-key';const Z='0'.repeat(64);
+function log(action,detail){q=q.then(async()=>{const prev=audit.length?audit[audit.length-1].h:Z;const e={seq:audit.length+1,t:new Date().toISOString().slice(11,19),actor:cur,action,detail,prev};e.h=await sha(KEY+prev+e.seq+e.actor+e.action+e.detail);audit.push(e);renderAudit();});return q;}
+async function verify(){let prev=Z;for(let i=0;i<audit.length;i++){const e=audit[i];if(e.prev!==prev)return`Chain broken near entry ${e.seq}: a gap or reordering (an entry before it was removed).`;const h=await sha(KEY+e.prev+e.seq+e.actor+e.action+e.detail);if(h!==e.h)return`Entry ${e.seq} was modified.`;prev=e.h;}return`OK: all ${audit.length} entries verify.`;}
+async function doVerify(){const r=await verify();$('#vres').className='chip '+(r.startsWith('OK')?'ok':'bad2');$('#vres').textContent=r;}
+function tamperEdit(){if(audit.length<3){$('#vres').textContent='Make a few actions first.';return;}audit[2].actor='x';doVerify();}
+function tamperDelete(){if(audit.length<3){$('#vres').textContent='Make a few actions first.';return;}audit.splice(1,1);doVerify();}
+function renderAudit(){const p=$('#auditPanel');if(USERS[cur].role!=='admin'){p.innerHTML='<p class="note">Audit trail is admin only. Sign in as admin.</p>';return;}
+p.innerHTML=`<div class="row"><button onclick="doVerify()">Verify now</button><button class="sec" onclick="tamperEdit()">Tamper: edit row 3</button><button class="sec" onclick="tamperDelete()">Tamper: delete row 2</button></div><div><span id="vres" class="chip">Not verified</span></div>
+<div class="scroll" style="max-height:300px;overflow:auto"><table><tr><th>#</th><th>Time</th><th>Who</th><th>Action</th><th>Hash</th></tr>${audit.slice().reverse().map(e=>`<tr><td>${e.seq}</td><td>${e.t}</td><td>${esc(e.actor)}</td><td>${esc(e.action)}<div class="note">${esc(e.detail)}</div></td><td class="mono">${e.h.slice(0,10)}…</td></tr>`).join('')}</table></div>
+<p class="note">Each row's hash covers the row before it. Real build: HMAC with a key kept outside the database, plus an off-machine anchor.</p>`;}
+
+/* P0 */
+const SERVICES=['db (Postgres + pgvector)','redis','minio (object storage)','ollama (model server)','sandbox (code runner)','api (FastAPI)','web (nginx)'];
+$('#svc').innerHTML=SERVICES.map(s=>`<tr><td><span class="dot"></span>${s}</td><td><span class="chip ok">healthy</span></td></tr>`).join('');
+async function egress(){const o=$('#egressOut');o.textContent='Running…';const t=['DNS lookup of example.com','TCP connect to 1.1.1.1:443','HTTPS GET https://example.com'];let s='';for(const x of t){await new Promise(r=>setTimeout(r,450));s+=`PASS  ${x} blocked\n`;o.textContent=s;}o.textContent=s+'All 3 checks PASS: outbound network blocked.';log('egress_test','3/3 PASS');}
+const PH=['Foundations: auth, roles, sealed network','Model gateway, cards, router, chat','Deterministic calculation engine','Clearance, retrieval, audit chain','Scans, findings, approval notes','Sandbox and tool layer (MCP)','P&ID drawing pipeline','Model onboarding and hardening'];
+$('#phases').innerHTML=PH.map((p,i)=>`<div class="row"><span class="chip ${i<7?'ok':'warn'}">${i<7?'built':'in progress'}</span> P${i} · ${p}</div>`).join('');
+function renderPeople(){const p=$('#people');if(USERS[cur].role!=='admin'){p.innerHTML='<p class="note">The People menu is hidden for this role.</p>';return;}
+p.innerHTML=`<table><tr><th>User</th><th>Role</th><th>Clearance</th></tr>${Object.entries(USERS).map(([n,u])=>`<tr><td>${n}</td><td>${u.role}</td><td>${CL[u.clr]}</td></tr>`).join('')}</table>`;}
+
+/* P1 models + router */
+let MODELS=[{id:'general-8b',tasks:['reasoning'],prio:1,on:true,gb:6},{id:'coder-7b',tasks:['coding'],prio:2,on:true,gb:5},{id:'vision-7b',tasks:['vision'],prio:2,on:true,gb:6}];
+function renderModels(){$('#models').innerHTML=`<tr><th>Model</th><th>Tasks</th><th>VRAM</th><th>On</th></tr>`+MODELS.map((m,i)=>`<tr><td class="mono">${esc(m.id)}</td><td>${m.tasks.join(', ')}</td><td>${m.gb} GB</td><td><input type="checkbox" ${m.on?'checked':''} ${USERS[cur].role==='admin'?'':'disabled'} onchange="MODELS[${i}].on=this.checked;log('model_toggle',MODELS[${i}].id+' '+(this.checked?'on':'off'))"></td></tr>`).join('')+(USERS[cur].role==='admin'?'':'<tr><td colspan="4" class="note">Only admins can switch models.</td></tr>');}
+function classify(t,img){if(img)return['vision','an image is attached'];if(/\b(code|python|function|script|bug|regex|sql)\b/i.test(t))return['coding','the text mentions code'];if(/(\d+(?:\.\d+)?)\s*(bar|psi|kpa)/i.test(t)||/deviation|percent/i.test(t))return['calculation','the text asks for a calculation'];return['reasoning','no special keywords, so general'];}
+function route(task){const why=[];let best=null;const t=task==='calculation'?'reasoning':task;for(const m of MODELS){if(!m.on){why.push(`${m.id}: switched off`);continue;}if(!m.tasks.includes(t)){why.push(`${m.id}: no card for ${t}`);continue;}if(!best||m.prio>best.prio)best=m;}
+if(best)return{m:best,why,fb:false};const g=MODELS.find(m=>m.on&&m.tasks.includes('reasoning'));return{m:g,why,fb:true};}
+function bubble(c,h){const d=document.createElement('div');d.className='msg '+c;d.innerHTML=h;$('#chatlog').appendChild(d);$('#chatlog').scrollTop=1e6;}
+function ask(t){$('#chatin').value=t;chat();}
+async function chat(){const t=$('#chatin').value.trim();if(!t)return;const img=$('#img').checked;$('#chatin').value='';bubble('u',esc(t)+(img?' <span class="chip">image</span>':''));
+const[task,why0]=classify(t,img);const r=route(task);if(!r.m){bubble('a','No model is available. Switch one on.');return;}
+let extra='';
+if(task==='calculation'){const n=[...t.matchAll(/(\d+(?:\.\d+)?)\s*(bar|psi|kpa)/gi)];if(n.length>=2){const res=await calc({v:n[0][1],u:n[0][2]},{v:n[1][1],u:n[1][2]});extra=`<div class="chip ok">Calculation engine answered first</div><div>${res.dev!==undefined?`Deviation ${res.dev}% — <b>${res.band}</b> · trace <span class="mono">${res.trace}</span>`:esc(res.msg)}</div><div class="why">Model reply check: the model did not state a figure, so nothing to compare.</div>`;}}
+const hits=docSearch(t);if(hits.length)extra+=`<div class="why">Sources: ${hits.map((h,i)=>`[${i+1}] ${esc(h.d.title)} (${CL[h.d.c]})`).join('; ')}</div>`;
+bubble('a',`${extra}<div>(${esc(r.m.id)} would answer here. Prototype models only echo.)</div><div class="why">Task: ${task} (${why0}). Chose <b>${esc(r.m.id)}</b>${r.fb?' as a fallback, no model is registered for this task':''}. ${r.why.length?'Skipped: '+esc(r.why.join('; ')):''}</div>`);
+log('chat',`${task} -> ${r.m.id}`);}
+
+/* P2 calc */
+const PU={bar:1,kpa:.01,psi:.0689476};
+async function calc(a,l){
+ const miss=[];if(a.v===''||isNaN(Number(a.v)))miss.push('actual_pressure');if(l.v===''||isNaN(Number(l.v)))miss.push('limit_pressure');
+ if(miss.length)return{status:'UNVERIFIED',msg:'UNVERIFIED. Missing: '+miss.join(', ')+'. Nothing was assumed.'};
+ for(const[n,x]of[['actual_pressure',a],['limit_pressure',l]]){const u=x.u.toLowerCase();
+  if(['degc','degf','k'].includes(u))return{status:'REFUSED',msg:`REFUSED. ${n} needs a pressure, but ${x.u} is a temperature.`};
+  if(['c','f','ton','gal','barg'].includes(u))return{status:'REFUSED',msg:`REFUSED. Unit "${x.u}" is ambiguous for ${n}. Write degC or degF for temperature, and use bar, kPa or psi on one absolute basis.`};}
+ const A=Number(a.v)*PU[a.u.toLowerCase()],L=Number(l.v)*PU[l.u.toLowerCase()];
+ if(L===0)return{status:'REFUSED',msg:'REFUSED. The limit is zero, so a percentage deviation is undefined.'};
+ const dev=+(((A-L)/L)*100).toFixed(4);const band=dev<=0?'Normal':dev<=10?'Needs engineering review':'Out of limit';
+ const trace=(await sha(JSON.stringify({f:'pressure_vs_limit@v1',inputs:{actual_pressure:+A.toFixed(6),limit_pressure:+L.toFixed(6)}}))).slice(0,16);
+ return{status:'OK',dev,band,trace,A,L,a,l};}
+let calcHist=[];
+async function runCalc(){const r=await calc({v:$('#ca').value,u:$('#cau').value},{v:$('#cl').value,u:$('#clu').value});const o=$('#calcOut');
+ if(r.dev===undefined){o.innerHTML=`<div class="chip ${r.status==='UNVERIFIED'?'warn':'bad2'}">${r.status}</div> ${esc(r.msg)}`;log('calc_'+r.status.toLowerCase(),r.msg.slice(0,60));return;}
+ o.innerHTML=`<div class="row"><span class="chip ${r.band==='Normal'?'ok':r.band==='Out of limit'?'bad2':'warn'}">${r.band}</span> <b style="font-size:20px">${r.dev}%</b></div>
+ <pre>Working
+actual  = ${r.a.v} ${r.a.u} = ${r.A.toFixed(4)} bar
+limit   = ${r.l.v} ${r.l.u} = ${r.L.toFixed(4)} bar
+deviation = (actual − limit) / limit × 100
+          = (${r.A.toFixed(4)} − ${r.L.toFixed(4)}) / ${r.L.toFixed(4)} × 100 = ${r.dev}%</pre>
+ <div>Trace ID <span class="mono">${r.trace}</span> <span class="note">(same inputs always give the same ID)</span></div>`;
+ calcHist.unshift(`${new Date().toISOString().slice(11,19)} · ${r.a.v} ${r.a.u} vs ${r.l.v} ${r.l.u} → ${r.dev}% · ${r.band} · ${r.trace}`);$('#calcHist').innerHTML=calcHist.map(x=>`<div class="mono">${esc(x)}</div>`).join('');log('calculation',`${r.dev}% ${r.band}`);}
+
+/* P3 docs */
+let DOCS=[{t:'Public safety bulletin',c:0,x:'hot work permit guidance gloves and eye protection'},{t:'Pump P-101 maintenance log',c:1,x:'pump seal replaced bearing vibration trend monitored'},{t:'Inspection schedule 2026',c:2,x:'annual inspection schedule for vessels and pumps'},{t:'Vessel V-101 wall thinning report',c:3,x:'corrosion wall thinning measured thickness 6.2 mm near minimum'}];
+const visible=()=>DOCS.filter(d=>d.c<=USERS[cur].clr);
+function docSearch(t){const w=t.toLowerCase().split(/\W+/).filter(x=>x.length>3);return visible().map(d=>({d,s:w.filter(k=>(d.t+' '+d.x).toLowerCase().includes(k)).length})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,3);}
+function renderDocs(){const v=visible();$('#docs').innerHTML=`<tr><th>Title</th><th>Class</th></tr>`+v.map(d=>`<tr><td>${esc(d.t)}</td><td><span class="chip">${CL[d.c]}</span></td></tr>`).join('')+`<tr><td colspan="2" class="note">You can see ${v.length} documents. Others are not listed, searched or counted.</td></tr>`;
+ $('#dc').innerHTML=CL.map((c,i)=>`<option value="${i}">${c}</option>`).join('');$('#dc').value=Math.min(1,USERS[cur].clr);$('#hits').innerHTML='';}
+function search(){const t=$('#q').value;const h=docSearch(t);log('search',t.slice(0,40));$('#hits').innerHTML=h.length?h.map(x=>{const inj=/ignore (all|previous|the above)|disregard.*instruction|you must now/i.test(x.d.x);return`<div class="card" style="margin:6px 0"><b>${esc(x.d.t)}</b> <span class="chip">${CL[x.d.c]}</span><div class="note">${esc(x.d.x)}</div>${inj?'<span class="chip bad2">Reads like an instruction to an AI: kept out of model context</span>':''}</div>`}).join(''):'<p class="note">Nothing found in documents you may see.</p>';}
+function addDoc(){const t=$('#dt').value.trim(),x=$('#dx').value.trim(),c=+$('#dc').value;if(!t||!x){$('#docMsg').textContent='Add a title and some text.';return;}
+ if(c>USERS[cur].clr){$('#docMsg').innerHTML=`<span class="chip bad2">Refused</span> You cannot file a ${CL[c]} document with ${CL[USERS[cur].clr]} clearance.`;log('refused',`${cur} tried to file ${CL[c]}`);return;}
+ DOCS.push({t,c,x});$('#dt').value='';$('#dx').value='';$('#docMsg').textContent='Added.';log('doc_added',`${t} (${CL[c]})`);renderDocs();}
+
+/* P4 findings + notes */
+let FINDS=[{id:1,t:'Wall thinning on vessel V-101 near the lower weld',c:.96,s:'confirmed?'},{id:2,t:'Measured thickness 6.2 mm against minimum 6.0 mm',c:.71},{id:3,t:'Pump P-101 seal leak observed',c:.93},{id:4,t:'Bearing vibration high on pump P-101',c:.58}].map(f=>({...f,st:'proposed'}));
+function renderFinds(){$('#finds').innerHTML=FINDS.map(f=>`<div class="card" style="margin:6px 0;padding:8px"><div class="row"><input type="text" id="f${f.id}" value="${esc(f.t)}" style="flex:1;min-width:180px" ${f.st!=='proposed'||!canEng()?'disabled':''}>
+ <span class="chip ${f.st==='confirmed'?'ok':f.st==='rejected'?'bad2':f.c<.75?'warn':''}">${f.st==='proposed'&&f.c<.75?'Needs checking':f.st} · ${Math.round(f.c*100)}%</span></div>
+ ${f.st==='proposed'&&canEng()?`<div class="row"><button onclick="fd(${f.id},'confirmed')">Confirm</button><button class="bad" onclick="fd(${f.id},'rejected')">Reject</button></div>`:''}</div>`).join('')+(canEng()?'':'<p class="note">Only engineers review findings.</p>');}
+function fd(id,st){const f=FINDS.find(x=>x.id===id);f.t=$('#f'+id).value;f.st=st;log('finding_'+st,f.t.slice(0,50));renderFinds();}
+let NOTES=[],NID=1;
+function writeNote(){if(!canEng()){$('#noteMsg').textContent='Only engineers can write notes.';return;}const c=FINDS.filter(f=>f.st==='confirmed');if(!c.length){$('#noteMsg').innerHTML='<span class="chip bad2">Refused</span> Confirm at least one finding first. Notes use confirmed findings only.';return;}
+ const fmt=$('#nfmt').value;const body='Summary\n'+c.map((f,i)=>`${i+1}. ${f.t}`).join('\n')+'\n\nRecommendation\nSchedule an engineering review of V-101 and P-101.';
+ NOTES.push({id:NID++,author:cur,fmt,versions:[body],status:'draft',ret:null,stamp:null});$('#noteMsg').textContent='Draft written.';log('note_drafted',fmt);renderNotes();}
+function nv(i){return NOTES[i].versions[NOTES[i].versions.length-1];}
+function saveV(i){const t=$('#nb'+i).value;if(t!==nv(i)){NOTES[i].versions.push(t);log('note_version',`#${NOTES[i].id} v${NOTES[i].versions.length}`);}renderNotes();}
+function sendRev(i){saveV(i);NOTES[i].status='in review';NOTES[i].ret=null;log('note_sent',`#${NOTES[i].id}`);renderNotes();}
+async function approve(i){const n=NOTES[i];n.status='approved';const h=await sha(nv(i));n.stamp={by:cur,at:new Date().toISOString(),h};await log('note_approved',`#${n.id} by ${cur}`);renderNotes();}
+function sendBack(i){const r=$('#rs'+i).value.trim();if(!r){$('#rm'+i).textContent='A reason is required to send back.';return;}NOTES[i].status='draft';NOTES[i].ret=r;log('note_returned',r.slice(0,50));renderNotes();}
+function diff(i){const v=NOTES[i].versions;if(v.length<2)return'';const a=v[v.length-2].split('\n'),b=v[v.length-1].split('\n');return'<pre>'+[...b.filter(x=>!a.includes(x)).map(x=>'+ '+esc(x)),...a.filter(x=>!b.includes(x)).map(x=>'− '+esc(x))].join('\n')+'</pre>';}
+function dlNote(i){const n=NOTES[i];dl(`approval-note-${n.id}.txt`,`APPROVAL NOTE #${n.id} (${n.fmt} in the real build)\n\n${nv(i)}\n\n---\nApproved by: ${n.stamp.by}\nApproved at: ${n.stamp.at}\nContent SHA-256: ${n.stamp.h}\n`);}
+function renderNotes(){const el=$('#notes');if(!NOTES.length){el.innerHTML='No notes yet. Confirm findings and write a draft.';return;}
+ el.innerHTML=NOTES.map((n,i)=>{const own=n.author===cur,rv=['reviewer','admin'].includes(USERS[cur].role);let act='';
+ if(n.status==='draft'&&own)act=`<textarea id="nb${i}" rows="6">${esc(nv(i))}</textarea><div class="row"><button class="sec" onclick="saveV(${i})">Save new version</button><button onclick="sendRev(${i})">Send for review</button></div>`;
+ else if(n.status==='draft')act=`<pre>${esc(nv(i))}</pre><span class="note">Draft by ${n.author}.</span>`;
+ else if(n.status==='in review'){act=`<pre>${esc(nv(i))}</pre>`;if(own)act+='<span class="note">You are the author, so you cannot approve this note.</span>';else if(rv)act+=`<div class="row"><button onclick="approve(${i})">Approve and produce file</button></div><div class="row"><input type="text" id="rs${i}" placeholder="Reason to send back" style="flex:1"><button class="sec" onclick="sendBack(${i})">Send back</button></div><div id="rm${i}" class="note"></div>`;else act+='<span class="note">Waiting for a reviewer.</span>';}
+ else act=`<pre>${esc(nv(i))}</pre><div class="chip ok">Approved and frozen</div><div class="note">By ${n.stamp.by} · ${n.stamp.at}<br>SHA-256 <span class="mono">${n.stamp.h.slice(0,24)}…</span></div><div class="row"><button onclick="dlNote(${i})">Download</button></div>`;
+ return`<div class="card" style="padding:10px"><b>${n.fmt} note #${n.id}</b> <span class="chip">${n.status}</span> <span class="chip">v${n.versions.length}</span> <span class="note">author ${n.author}</span>${n.ret?`<div class="chip warn">Sent back: ${esc(n.ret)}</div>`:''}${act}${n.versions.length>1?'<div class="note">Latest change:</div>'+diff(i):''}</div>`;}).join('');}
+
+/* P5 sandbox + tools */
+const SNIP={good:`import csv
+rows = [7.1, 6.8, 6.2, 7.4]
+print("thickness readings loaded")
+print("mean thickness =", sum(rows)/len(rows))`,net:`import socket
+s = socket.create_connection(("1.1.1.1", 443))`,write:`open("/etc/x", "w").write("hello")`,loop:`while True:
+    pass`,proc:`import os
+os.system("curl http://example.com")`};
+function preset(k){$('#code').value=SNIP[k];}
+function runCode(){const c=$('#code').value;let out,rc=0;
+ if(/import\s+socket|requests\.|urllib|http\.client/.test(c)){out='PermissionError: the sandbox does not allow network access.';rc=1;}
+ else if(/\/etc\//.test(c)){out='OSError: read-only file system. Writes outside the workspace are refused.';rc=1;}
+ else if(/os\.system|subprocess|fork/.test(c)){out='Blocked: creating processes is not allowed.';rc=1;}
+ else if(/while\s+True/.test(c)&&!/break/.test(c)){out='Killed: time limit (10 s) exceeded.';rc=124;}
+ else{const p=[...c.matchAll(/print\(\s*(['"])(.*?)\1/g)].map(m=>m[2]);out=(p.length?p.join('\n'):'(no output)')+(/mean|sum\(/.test(c)?'\nmean thickness = 6.875':'');}
+ $('#codeOut').textContent=`${out}\n[exit ${rc}] simulated`;log('code_run',rc===0?'ok':'contained: '+out.slice(0,40));}
+function runTests(){$('#codeOut').textContent='test_thickness.py::test_mean PASSED\ntest_thickness.py::test_range PASSED\n2 passed (simulated)';log('code_tests','2 passed');}
+const TOOLS=[['search_documents','viewer'],['run_calculation','viewer'],['read_file','engineer'],['write_file','engineer'],['read_spreadsheet','engineer'],['run_code','engineer'],['ask_drawing','engineer'],['draft_note','engineer'],['list_models','engineer']];
+function renderTools(){const rank={viewer:0,engineer:1,reviewer:1,admin:2};const me=rank[USERS[cur].role];$('#tools').innerHTML='<tr><th>Tool</th><th>Min role</th><th></th></tr>'+TOOLS.map(([n,r])=>{const ok=me>=rank[r];return`<tr><td class="mono">${n}</td><td>${r}</td><td><span class="chip ${ok?'ok':'bad2'}">${ok?'allowed':'refused'}</span></td></tr>`}).join('');}
+
+/* P6 pid */
+const POS={s1:[75,110],s2:[225,110],s3:[365,110],s4:[495,110],s5:[595,110]};
+const EDGES=[['s1','s2'],['s2','s3'],['s3','s4'],['s4','s5']];
+let pid={syms:[],sel:null};
+function mkPid(cond){const b=cond==='blurry';const base=[['s1','V-101','vessel',.97],['s2','P-101','pump',.95],['s3','FCV-12B','valve',.92],['s4','E-201','exchanger',.9],['s5','?','unknown',.44]];
+ pid.syms=base.map(([id,tag,type,c])=>({id,tag:b&&tag!=='?'?'unreadable':tag,type,c:b?+(c*.62).toFixed(2):c,st:'proposed',real:tag}));pid.sel=null;
+ $('#pidsvg').style.filter=b?'blur(1.4px)':'none';$('#pscore').textContent=b?'Rated: poor. Tags unreadable, doubtful items flagged.':'Rated: good. Tags read.';renderPid();}
+const doubt=s=>s.st==='proposed'&&s.c<.6;
+function shape(s){const[x,y]=POS[s.id];const d=s.st==='rejected'?'3 3':s.st==='confirmed'?'':doubt(s)?'2 3':'6 4';const w=doubt(s)?3:2;const o=s.st==='rejected'?.3:1;const st=`fill="var(--card)" stroke="var(--acc)" stroke-width="${w}" stroke-dasharray="${d}" opacity="${o}"`;let g='';
+ if(s.type==='vessel')g=`<rect x="${x-25}" y="${y-45}" width="50" height="90" rx="16" ${st}/>`;
+ else if(s.type==='pump')g=`<circle cx="${x}" cy="${y}" r="22" ${st}/><path d="M${x-12} ${y+10} L${x} ${y-14} L${x+12} ${y+10}" fill="none" stroke="var(--acc)" stroke-width="2" opacity="${o}"/>`;
+ else if(s.type==='valve')g=`<polygon points="${x-22},${y-14} ${x+22},${y+14} ${x+22},${y-14} ${x-22},${y+14}" ${st}/>`;
+ else if(s.type==='exchanger')g=`<circle cx="${x}" cy="${y}" r="24" ${st}/><path d="M${x-24} ${y} h10 l5 -8 l10 16 l5 -8 h14" fill="none" stroke="var(--acc)" stroke-width="2" opacity="${o}"/>`;
+ else g=`<rect x="${x-20}" y="${y-20}" width="40" height="40" ${st}/><text x="${x-4}" y="${y+5}">?</text>`;
+ return`<g style="cursor:pointer" onclick="selSym('${s.id}')">${g}<text x="${x-30}" y="${y+62}">${esc(s.tag)} · ${Math.round(s.c*100)}%</text>${pid.sel===s.id?`<rect x="${x-34}" y="${y-52}" width="68" height="104" fill="none" stroke="var(--warn)" stroke-width="1.5"/>`:''}</g>`;}
+function renderPid(){const lines=EDGES.map(([a,b])=>`<line x1="${POS[a][0]}" y1="${POS[a][1]}" x2="${POS[b][0]}" y2="${POS[b][1]}" stroke="var(--mut)" stroke-width="2"/>`).join('');
+ $('#pidsvg').innerHTML=lines+pid.syms.map(shape).join('');
+ const need=pid.syms.filter(s=>s.st==='proposed');$('#pq').innerHTML=need.length?need.map(s=>`<div class="row"><span class="chip ${doubt(s)?'bad2':'warn'}">${doubt(s)?'doubtful':'unchecked'}</span> ${esc(s.tag)} (${s.type}, ${Math.round(s.c*100)}%) <button class="sec" onclick="selSym('${s.id}')">Review</button></div>`).join(''):'<p class="note">Everything has been reviewed.</p>';
+ const s=pid.syms.find(x=>x.id===pid.sel);$('#symPanel').innerHTML=s?`<div class="card" style="margin-top:8px"><b>${esc(s.id)}</b> <span class="chip">${s.st}</span><div class="row"><select id="stype">${['vessel','pump','valve','exchanger','unknown'].map(t=>`<option ${t===s.type?'selected':''}>${t}</option>`).join('')}</select><input type="text" id="stag" value="${s.tag==='unreadable'?'':esc(s.tag==='?'?'':s.tag)}" placeholder="Type the tag"></div>${canEng()?`<div class="row"><button onclick="pidSet('confirmed')">Confirm</button><button class="bad" onclick="pidSet('rejected')">Reject</button></div>`:'<span class="note">Only engineers can review.</span>'}</div>`:'';}
+function selSym(id){pid.sel=id;renderPid();}
+function pidSet(st){const s=pid.syms.find(x=>x.id===pid.sel);s.type=$('#stype').value;const t=$('#stag').value.trim();if(t)s.tag=t;s.st=st;if(st==='confirmed')s.c=1;log('pid_'+st,`${s.id} ${s.tag}`);renderPid();}
+function pidAsk(){const t=$('#pask').value,o=$('#pans');let a;const m=t.match(/([A-Za-z]{1,4}-\d+[A-Za-z]?)/);
+ if(/list the (\w+)/i.test(t)){const k=t.match(/list the (\w+)/i)[1].toLowerCase().replace(/s$/,'');const r=pid.syms.filter(s=>s.type===k);a=r.length?`${r.length} ${k}(s): ${r.map(s=>s.tag+(s.st==='confirmed'?'':' (unchecked)')).join(', ')}.`:`No ${k} on this drawing.`;}
+ else if(/need review|check/i.test(t)){const r=pid.syms.filter(s=>s.st==='proposed');a=r.length?`${r.length} need review: ${r.map(s=>s.id+' '+s.tag).join(', ')}.`:'Nothing needs review.';}
+ else if(m){const s=pid.syms.find(x=>x.tag.toLowerCase()===m[1].toLowerCase());if(!s)a=`${m[1]} is not on this drawing (or its tag is unreadable). Nothing was guessed.`;else{const nb=EDGES.filter(e=>e.includes(s.id)).map(e=>pid.syms.find(x=>x.id===(e[0]===s.id?e[1]:e[0])));a=`${s.tag} is connected to ${nb.map(n=>`${n.tag} (${n.st==='confirmed'?'confirmed':'unchecked'})`).join(' and ')}.`+(s.st==='confirmed'?'':` Note: ${s.tag} itself is unchecked.`);}}
+ else a='Try "what is connected to P-101", "list the pumps" or "which symbols need review".';o.textContent=a;log('pid_ask',t.slice(0,40));}
+function pidExport(){const c=pid.syms.filter(s=>s.st==='confirmed');dl('drawing-confirmed.json',JSON.stringify({symbols:c.map(s=>({tag:s.tag,type:s.type})),left_out_unchecked:pid.syms.length-c.length,note:'Only confirmed items are included.'},null,2));log('pid_export',`${c.length} confirmed`);}
+
+/* P7 onboarding */
+const EXPECT_BYTES=new TextEncoder().encode('sample-ocr-7b weights v1');let EXPECT='';
+let onb={hash:null,bench:null,sign:[],done:false};
+async function bytesHash(b){const d=await crypto.subtle.digest('SHA-256',b);return[...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+async function chkSample(t){const b=new Uint8Array(EXPECT_BYTES);if(t)b[3]^=1;const h=await bytesHash(b);onb.hash={ok:h===EXPECT,h};log('model_checksum',(onb.hash.ok?'match':'MISMATCH')+' sample-ocr-7b');renderOnb();}
+async function chkFile(inp){const f=inp.files[0];if(!f)return;const h=await bytesHash(await f.arrayBuffer());onb.hash={ok:h===EXPECT,h,file:f.name};log('model_checksum',(onb.hash.ok?'match':'MISMATCH')+' '+f.name);renderOnb();}
+function bench(){onb.bench={ocr:.91,reason:.74,safety:.96,pass:true};log('model_benchmark','passed (simulated)');renderOnb();}
+function sign(){const r=USERS[cur].role;if(!['admin','reviewer'].includes(r)){return;}if(onb.sign.includes(cur))return;onb.sign.push(cur);log('model_signoff',cur);renderOnb();}
+function regModel(){MODELS.push({id:'sample-ocr-7b',tasks:['vision'],prio:3,on:true,gb:6});onb.done=true;log('model_registered','sample-ocr-7b');renderModels();renderOnb();}
+function renderOnb(){const h=onb.hash,b=onb.bench;const can=['admin','reviewer'].includes(USERS[cur].role);
+ $('#onb').innerHTML=`<p class="note">Expected SHA-256 (from the publisher): <span class="mono">${EXPECT.slice(0,20)}…</span></p>
+ <div class="row"><b>1 Checksum</b> ${h?`<span class="chip ${h.ok?'ok':'bad2'}">${h.ok?'match':'MISMATCH: do not use'}</span>`:''}</div>
+ <div class="row"><button class="sec" onclick="chkSample(false)">Genuine sample</button><button class="sec" onclick="chkSample(true)">Tampered sample</button><input type="file" onchange="chkFile(this)"></div>
+ ${h?`<div class="mono note">computed ${h.h.slice(0,32)}…</div>`:''}
+ <div class="row"><b>2 Benchmark</b> ${b?`<span class="chip ok">OCR ${b.ocr} · reasoning ${b.reason} · safety ${b.safety}</span>`:''}</div>
+ <div class="row"><button ${h&&h.ok?'':'disabled'} onclick="bench()">Run benchmark (simulated)</button></div>
+ <div class="row"><b>3 Sign-off</b> <span class="chip">${onb.sign.length}/2 different people</span> ${onb.sign.map(s=>`<span class="chip ok">${s}</span>`).join('')}</div>
+ <div class="row"><button ${b&&can&&!onb.sign.includes(cur)&&onb.sign.length<2?'':'disabled'} onclick="sign()">Sign off as ${cur}</button></div>
+ <div class="note">Only admin or reviewer can sign. Switch user to add the second signature.</div>
+ <div class="row"><b>4 Register</b></div>
+ <div class="row"><button ${onb.sign.length>=2&&!onb.done?'':'disabled'} onclick="regModel()">Register in router</button>${onb.done?'<span class="chip ok">Now in Phase 1 cards</span>':''}</div>`;}
+const HARD=['Backend network has no route out (egress test passes)','Containers run as a non-root user','Login rate limiting and lockout','Security headers on the web container','Upload size and type limits','Secrets only in .env, never in git','AUDIT_KEY backed up off the machine','Dependency audit (pip-audit, npm audit) clean','Model files verified by checksum before use','Sandbox attack checks all PASS'];
+let hs=HARD.map(()=>false);
+function renderHard(){$('#hard').innerHTML=HARD.map((t,i)=>`<label class="row"><input type="checkbox" ${hs[i]?'checked':''} onchange="hs[${i}]=this.checked;renderHard()"> ${t}</label>`).join('');$('#hbar').style.width=Math.round(hs.filter(Boolean).length/HARD.length*100)+'%';}
+
+function renderAll(){renderPeople();renderModels();renderDocs();renderAudit();renderFinds();renderNotes();renderTools();renderPid();renderOnb();}
+(async()=>{EXPECT=await bytesHash(EXPECT_BYTES);mkPid('clean');renderHard();setUser('admin');tab(0);bubble('a','Ask me something. Try the quick buttons below.');log('session_start','prototype loaded');})();
+</script>
+</body>
+</html>
